@@ -24,15 +24,15 @@ import requests
 
 
 def validate_mmd(mmd):
-    url = 'https://dmci-staging.s-enda.k8s.met.no/v1/validate'
+    url = 'https://dmci-dev.s-enda.k8s.met.no/v1/validate'
     response = requests.post(url, data=mmd)
     return response.status_code == 200
 
 
 def send_to_dmci(mmd):
-    print("Sending to dmci ")
+    print("Sending to dmci...")
     response = requests.post(
-        'https://dmci-staging.s-enda.k8s.met.no/v1/insert', data=mmd
+        'https://dmci-dev.s-enda.k8s.met.no/v1/insert', data=mmd
         )
     return response.status_code
 
@@ -41,13 +41,17 @@ def main(incoming_mmd):
     if incoming_mmd is not None and incoming_mmd != "":
         mmd = incoming_mmd.encode()
         if validate_mmd(mmd):
-            send_to_dmci(mmd)
+            if send_to_dmci(mmd) == 200:
+                print("Succesfully saved")
+            else:
+                print("Failed to save")
+                
         else:
-            print("invalid mmd")
+            print("Invalid mmd")
     else:
-        print("product event mmd is none or empty  ")
+        print("product event mmd is none or empty")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     incoming_mmd = os.environ.get("MMS_PRODUCT_EVENT_MMD", None)
     main(incoming_mmd)
