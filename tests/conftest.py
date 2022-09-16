@@ -21,5 +21,6 @@ import os
 import sys
 
 
-# Note: This line forces the test suite to import the dmci package in the current source tree
+# Note: This line forces the test suite to import the mmd_agent package in the current source tree
 sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
+sys.path.append(os.path.dirname(os.path.realpath(__file__))+"/../mmd_agent")

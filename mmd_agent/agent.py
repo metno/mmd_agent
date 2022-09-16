@@ -21,33 +21,28 @@ limitations under the License.
 
 import os
 import requests
-
-
-def validate_mmd(mmd):
-    url = 'https://dmci-staging.s-enda.k8s.met.no/v1/validate'
-    response = requests.post(url, data=mmd)
-    return response.status_code == 200
+from config import read_config
 
 
 def send_to_dmci(mmd):
-    print("Sending to dmci ")
-    response = requests.post(
-        'https://dmci-staging.s-enda.k8s.met.no/v1/insert', data=mmd
-        )
-    return response.status_code
+    dmci_url = read_config()+'/v1/insert'
+    response = requests.post(dmci_url, data=mmd)
+    return response.status_code, response.text
 
 
 def main(incoming_mmd):
     if incoming_mmd is not None and incoming_mmd != "":
         mmd = incoming_mmd.encode()
-        if validate_mmd(mmd):
-            send_to_dmci(mmd)
+        status_code, msg = send_to_dmci(mmd)
+        if status_code == 200:
+            print("Succesfully saved")
         else:
-            print("invalid mmd")
+            print("Failed to save")
+            print(status_code, msg)
     else:
-        print("product event mmd is none or empty  ")
+        print("Given mmd is none or empty")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     incoming_mmd = os.environ.get("MMS_PRODUCT_EVENT_MMD", None)
     main(incoming_mmd)
