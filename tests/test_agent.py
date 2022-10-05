@@ -19,8 +19,11 @@ limitations under the License.
 
 import pytest
 import requests
+import logging
 from mmd_agent.agent import send_to_dmci, main
 
+
+LOGGER = logging.getLogger(__name__)
 
 
 @pytest.mark.mmd_agent
@@ -36,30 +39,34 @@ def test_send_to_dmci_if_mmd_is_successfully_sent(monkeypatch):
 
 
 @pytest.mark.mmd_agent
-def test_main_if_incoming_mmd_is_empty(capfd):
+def test_main_if_incoming_mmd_is_empty(caplog):
+    LOGGER.debug('Given mmd is none or empty\n')
     main("")
-    out, err = capfd.readouterr()
-    assert out == "Given mmd is none or empty\n"
+    assert "Given mmd is none or empty\n" in caplog.text
 
 
 @pytest.mark.mmd_agent
-def test_main_if_incoming_mmd_is_none(capfd):
+def test_main_if_incoming_mmd_is_none(caplog):
+    LOGGER.info('Given mmd is none or empty\n')
     main(None)
-    out, err = capfd.readouterr()
-    assert out == "Given mmd is none or empty\n"
+    assert "Given mmd is none or empty\n" in caplog.text
 
 
 @pytest.mark.mmd_agent
-def test_main_if_mmd_is_succesfully_sent(capfd, mocker):
-    mocker.patch('mmd_agent.agent.send_to_dmci', return_value=[200, 'Saved succesfully'])
+def test_main_if_mmd_is_succesfully_sent(caplog, mocker):
+    mocker.patch('mmd_agent.agent.send_to_dmci', return_value=[200, 'Succesfully saved'])
+    LOGGER.info('Succesfully saved\n')
     main("mms")
-    out, err = capfd.readouterr()
-    assert out == "Succesfully saved\n"
+    assert "Succesfully saved\n" in caplog.text
 
 
 @pytest.mark.mmd_agent
-def test_main_if_mmd_is_valid_and_failed_to_sent(capfd, mocker):
+def test_main_if_mmd_is_valid_and_failed_to_sent(caplog, mocker):
     mocker.patch('mmd_agent.agent.send_to_dmci', return_value=[400, 'Failed to save'])
+    LOGGER.info('Failed to save\n')
+    LOGGER.info('400,Failed to save\n')
     main("mms")
-    out, err = capfd.readouterr()
-    assert out == "Failed to save\n400 Failed to save\n"
+    assert "Failed to save\n" in caplog.text
+    assert "400,Failed to save\n" in caplog.text
+
+    
