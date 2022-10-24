@@ -68,5 +68,3 @@ def test_main_if_mmd_is_valid_and_failed_to_sent(caplog, mocker):
     main("mms")
     assert "Failed to save\n" in caplog.text
     assert "400,Failed to save\n" in caplog.text
-
-
