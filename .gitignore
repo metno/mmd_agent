@@ -23,3 +23,6 @@ __pycache__
 
 # Vim swapfile
 *.swp
+
+# Log files
+*.log
