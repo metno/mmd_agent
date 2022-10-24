@@ -19,12 +19,8 @@ limitations under the License.
 
 import pytest
 import requests
-import logging
 import mmd_agent
 from mmd_agent.agent import send_to_dmci, main
-
-
-LOGGER = logging.getLogger(__name__)
 
 
 @pytest.mark.mmd_agent
@@ -41,14 +37,12 @@ def test_send_to_dmci_if_mmd_is_successfully_sent(monkeypatch):
 
 @pytest.mark.mmd_agent
 def test_main_if_incoming_mmd_is_empty(caplog):
-    LOGGER.debug('Given mmd is none or empty\n')
     main("")
     assert "Given mmd is none or empty\n" in caplog.text
 
 
 @pytest.mark.mmd_agent
 def test_main_if_incoming_mmd_is_none(caplog):
-    LOGGER.info('Given mmd is none or empty\n')
     main(None)
     assert "Given mmd is none or empty\n" in caplog.text
 
@@ -57,7 +51,6 @@ def test_main_if_incoming_mmd_is_none(caplog):
 def test_main_if_mmd_is_succesfully_sent(caplog, monkeypatch):
     with monkeypatch.context() as mp:
         mp.setattr(mmd_agent.agent, "send_to_dmci", lambda *a: (200, 'Succesfully saved'))
-        LOGGER.info('Succesfully saved\n')
         main("mms")
         assert "Succesfully saved\n" in caplog.text
 
@@ -66,8 +59,6 @@ def test_main_if_mmd_is_succesfully_sent(caplog, monkeypatch):
 def test_main_if_mmd_is_valid_and_failed_to_sent(caplog, monkeypatch):
     with monkeypatch.context() as mp:
         mp.setattr(mmd_agent.agent, "send_to_dmci", lambda *a: (400, 'Failed to save'))
-        LOGGER.info('Failed to save\n')
-        LOGGER.info('400,Failed to save\n')
         main("mms")
         assert "Failed to save\n" in caplog.text
         assert "400,Failed to save\n" in caplog.text
