@@ -28,7 +28,11 @@ def test_read_config(filesDir, rootDir):
 
     # Read some values and see that we get them
     confFile = os.path.join(filesDir, "config.yaml")
+    invalidConfFile = os.path.join(filesDir, "invalid_config.yaml")
     exampleConf = os.path.join(rootDir, "example_config.yaml")
+
+    # Read with no file path set
+    read_config(configFile=None)
 
     # Fake path
     with pytest.raises(SystemExit) as pytest_wrapped_e:
@@ -43,5 +47,8 @@ def test_read_config(filesDir, rootDir):
 
     # Cause the open command to fail
     with pytest.raises(SystemExit) as pytest_wrapped_e:
-        read_config(configFile=confFile)
+        read_config(configFile=invalidConfFile)
     assert pytest_wrapped_e.type == SystemExit
+
+    # Succesfull read
+    read_config(configFile=confFile)
