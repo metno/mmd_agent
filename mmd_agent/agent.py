@@ -21,33 +21,41 @@ limitations under the License.
 
 import os
 import requests
+import logging
+from config import read_config
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter('%(name)s:%(asctime)s:%(levelname)s:%(message)s')
+
+file_handler = logging.FileHandler('agent.log')
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
 
 
-def validate_mmd(mmd):
-    url = 'https://dmci-staging.s-enda.k8s.met.no/v1/validate'
+def send_to_dmci(mmd, dmci_url):
+    url = dmci_url + '/v1/insert'
     response = requests.post(url, data=mmd)
-    return response.status_code == 200
-
-
-def send_to_dmci(mmd):
-    print("Sending to dmci ")
-    response = requests.post(
-        'https://dmci-staging.s-enda.k8s.met.no/v1/insert', data=mmd
-        )
-    return response.status_code
+    return response.status_code, response.text
 
 
 def main(incoming_mmd):
+
     if incoming_mmd is not None and incoming_mmd != "":
         mmd = incoming_mmd.encode()
-        if validate_mmd(mmd):
-            send_to_dmci(mmd)
+        dmci_url = read_config()
+        status_code, msg = send_to_dmci(mmd, dmci_url)
+        if status_code == 200:
+            logger.debug("Succesfully saved")
         else:
-            print("invalid mmd")
+            logger.debug("Failed to save")
+            logger.info('{},{}'.format(status_code, msg))
     else:
-        print("product event mmd is none or empty  ")
+        logger.debug("Given mmd is none or empty")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     incoming_mmd = os.environ.get("MMS_PRODUCT_EVENT_MMD", None)
     main(incoming_mmd)
