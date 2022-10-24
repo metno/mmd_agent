@@ -23,7 +23,7 @@ from mmd_agent.config import read_config
 
 
 @pytest.mark.mmd_agent
-def test_read_config(filesDir, rootDir):
+def test_read_config(filesDir, rootDir, monkeypatch):
     """Test reading config file."""
 
     # Read some values and see that we get them
@@ -31,8 +31,15 @@ def test_read_config(filesDir, rootDir):
     invalidConfFile = os.path.join(filesDir, "invalid_config.yaml")
     exampleConf = os.path.join(rootDir, "example_config.yaml")
 
-    # Read with no file path set
-    read_config(configFile=None)
+    # Read with no file path set and no config present.
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        read_config(configFile=None)
+    assert pytest_wrapped_e.type == SystemExit
+
+    # Read with test-config being discovered by os.path.join
+    with monkeypatch.context() as mp:
+        mp.setattr(os.path, "join", lambda *a: confFile)
+        read_config(configFile=None)
 
     # Fake path
     with pytest.raises(SystemExit) as pytest_wrapped_e:
