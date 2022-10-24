@@ -50,6 +50,7 @@ def test_main_if_incoming_mmd_is_none(caplog):
 @pytest.mark.mmd_agent
 def test_main_if_mmd_is_succesfully_sent(caplog, monkeypatch):
     with monkeypatch.context() as mp:
+        mp.setattr(mmd_agent.agent, "read_config", lambda *a: "url")
         mp.setattr(mmd_agent.agent, "send_to_dmci", lambda *a: (200, 'Succesfully saved'))
         main("mms")
         assert "Succesfully saved\n" in caplog.text
@@ -58,6 +59,7 @@ def test_main_if_mmd_is_succesfully_sent(caplog, monkeypatch):
 @pytest.mark.mmd_agent
 def test_main_if_mmd_is_valid_and_failed_to_sent(caplog, monkeypatch):
     with monkeypatch.context() as mp:
+        mp.setattr(mmd_agent.agent, "read_config", lambda *a: "url")
         mp.setattr(mmd_agent.agent, "send_to_dmci", lambda *a: (400, 'Failed to save'))
         main("mms")
         assert "Failed to save\n" in caplog.text
