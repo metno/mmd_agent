@@ -30,7 +30,7 @@ def test_send_to_dmci_if_mmd_is_successfully_sent(monkeypatch):
         status_code = 200
     with monkeypatch.context() as mp:
         mp.setattr(requests, "post", lambda *a, **k: mockResp)
-        status_code, msg = send_to_dmci("mmd")
+        status_code, msg = send_to_dmci("mmd", "url")
         assert status_code == 200
         assert msg == "Saved succesfully"
 

@@ -19,11 +19,7 @@ limitations under the License.
 
 import pytest
 import os
-import logging
 from mmd_agent.config import read_config
-
-
-LOGGER = logging.getLogger(__name__)
 
 
 @pytest.mark.mmd_agent

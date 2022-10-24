@@ -35,8 +35,8 @@ file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
 
-def send_to_dmci(mmd):
-    url = read_config() + '/v1/insert'
+def send_to_dmci(mmd, dmci_url):
+    url = dmci_url + '/v1/insert'
     response = requests.post(url, data=mmd)
     return response.status_code, response.text
 
@@ -45,7 +45,8 @@ def main(incoming_mmd):
 
     if incoming_mmd is not None and incoming_mmd != "":
         mmd = incoming_mmd.encode()
-        status_code, msg = send_to_dmci(mmd)
+        dmci_url = read_config()
+        status_code, msg = send_to_dmci(mmd, dmci_url)
         if status_code == 200:
             logger.debug("Succesfully saved")
         else:
