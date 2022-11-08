@@ -54,6 +54,8 @@ RUN git clone --branch ${MMD_AGENT_VERSION} ${MMD_AGENT_REPO}
 COPY config.yaml ./mmd_agent
 RUN pip install -r mmd_agent/requirements.txt
 
+ENTRYPOINT ["/app/go-mms/mms"]
+
 
 
 
