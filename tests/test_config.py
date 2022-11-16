@@ -31,7 +31,6 @@ def test_read_config(filesDir, rootDir, monkeypatch):
     invalidConfFile = os.path.join(filesDir, "invalid_config.yaml")
     exampleConf = os.path.join(rootDir, "example_config.yaml")
 
-    
     # Read with test-config being discovered by os.path.join
     with monkeypatch.context() as mp:
         mp.setattr(os.path, "join", lambda *a: confFile)
