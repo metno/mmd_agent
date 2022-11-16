@@ -31,11 +31,7 @@ def test_read_config(filesDir, rootDir, monkeypatch):
     invalidConfFile = os.path.join(filesDir, "invalid_config.yaml")
     exampleConf = os.path.join(rootDir, "example_config.yaml")
 
-    # Read with no file path set and no config present.
-    with pytest.raises(SystemExit) as pytest_wrapped_e:
-        read_config(configFile=None)
-    assert pytest_wrapped_e.type == SystemExit
-
+    
     # Read with test-config being discovered by os.path.join
     with monkeypatch.context() as mp:
         mp.setattr(os.path, "join", lambda *a: confFile)
