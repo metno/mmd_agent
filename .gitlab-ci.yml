@@ -1,6 +1,69 @@
-build-job:
+stages:
+  - build
+  - release
+variables:
+  mmd_agent_version: v0.0.1
+
+.source-repo:
+  variables:
+    CONTEXT: repo/container
+  before_script:
+    - git clone --depth 1 --branch $mmd_agent_version https://github.com/metno/mmd_agent repo
+
+docker-build-master:
+  extends: .source-repo
   stage: build
   script:
-    - echo "Hello, $GITLAB_USER_LOGIN!"
+    - SHORT_SHA=$(git -C repo rev-parse --short HEAD)
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker build --pull --build-arg MMD_AGENT_VERSION=$mmd_agent_version -t "$CI_REGISTRY_IMAGE" $CONTEXT
+    - docker build --pull --build-arg MMD_AGENT_VERSION=$mmd_agent_version -t "$CI_REGISTRY_IMAGE:$SHORT_SHA" $CONTEXT
+    - docker push "$CI_REGISTRY_IMAGE"
+    - docker push "$CI_REGISTRY_IMAGE:$SHORT_SHA"
+    - mkdir .images
+    - echo "$CI_REGISTRY_IMAGE:$SHORT_SHA" > .images/container
+  artifacts:
+    paths:
+      - .images/*  
+  only:
+    - main
   tags:
     - k8s-root
+
+docker-build:
+  extends: .source-repo
+  stage: build
+  script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker build --pull -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" $CONTEXT
+  except:
+    - main
+  tags:
+    - k8s-root
+
+.release:
+  stage: release
+  image: registry.met.no/k8s/tools/kustomize-cd:0.4.0
+  tags:
+    - k8s-unpriv
+  variables:
+#    EXCLUDE_MAINTAINERS: '["miguelsn", "audunmg", "sebastianj"]'
+#    ENVIRONMENT: "staging"
+    AUTO_RELEASE: "true"
+  script:
+    - release --repo https://gitlab.met.no/tjenester/s-enda.git
+        --access-token "${TJENESTE_ACCESS_TOKEN}" 
+        --automatic "$AUTO_RELEASE"
+        --environment "$ENVIRONMENT" 
+        --updates-dir .images 
+#        --exclude-maintainers "$EXCLUDE_MAINTAINERS"
+
+dev:
+  extends: .release
+  variables:
+    ENVIRONMENT: "dev"
+    AUTO_RELEASE: "true"
+  only:
+    refs:
+      - main
+      
