@@ -43,20 +43,17 @@ docker-build:
 
 .release:
   stage: release
-  image: registry.met.no/k8s/tools/kustomize-cd:0.4.0
+  image: "${RELEASE_IMAGE}"
   tags:
     - k8s-unpriv
   variables:
-#    EXCLUDE_MAINTAINERS: '["miguelsn", "audunmg", "sebastianj"]'
-#    ENVIRONMENT: "staging"
     AUTO_RELEASE: "true"
   script:
-    - release --repo https://gitlab.met.no/tjenester/s-enda.git
+    - release --repo "${TJENESTE_REPO}"
         --access-token "${TJENESTE_ACCESS_TOKEN}" 
         --automatic "$AUTO_RELEASE"
         --environment "$ENVIRONMENT" 
         --updates-dir .images 
-#        --exclude-maintainers "$EXCLUDE_MAINTAINERS"
 
 dev:
   extends: .release
@@ -66,4 +63,14 @@ dev:
   only:
     refs:
       - main
+
+staging:
+  extends: .release
+  variables:
+    ENVIRONMENT: "staging"
+    AUTO_RELEASE: "true"
+  only:
+    refs:
+      - tags
+
       
