@@ -49,7 +49,8 @@ docker-build:
   variables:
     AUTO_RELEASE: "true"
   script:
-    - release --repo "${TJENESTE_REPO}"
+    - release 
+        --repo "${TJENESTE_REPO}"
         --access-token "${TJENESTE_ACCESS_TOKEN}" 
         --automatic "$AUTO_RELEASE"
         --environment "$ENVIRONMENT" 
