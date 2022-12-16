@@ -27,6 +27,7 @@ docker-build-master:
       - .images/*  
   only:
     - main
+    - tags
   tags:
     - k8s-root
 
@@ -73,5 +74,5 @@ staging:
   only:
     refs:
       - tags
-
       
+
