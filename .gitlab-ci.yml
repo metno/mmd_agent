@@ -2,7 +2,7 @@ stages:
   - build
   - release
 variables:
-  mmd_agent_version: v0.0.1
+  mmd_agent_version: main
 
 .source-repo:
   variables:
@@ -27,9 +27,28 @@ docker-build-master:
       - .images/*  
   only:
     - main
-    - tags
   tags:
     - k8s-root
+
+docker-build-tags:
+    extends: .source-repo
+    stage: build
+    script:
+      - SHORT_SHA=$(git -C repo rev-parse --short HEAD)
+      - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+      - docker build --pull --build-arg MMD_AGENT_VERSION=$mmd_agent_version -t "$CI_REGISTRY_IMAGE" $CONTEXT
+      - docker build --pull --build-arg MMD_AGENT_VERSION=$mmd_agent_version -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG" $CONTEXT
+      - docker push "$CI_REGISTRY_IMAGE"
+      - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
+      - mkdir .images
+      - echo "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG" > .images/container
+    artifacts:
+      paths:
+        - .images/*  
+    only:
+      - tags
+    tags:
+      - k8s-root
 
 docker-build:
   extends: .source-repo
@@ -39,6 +58,7 @@ docker-build:
     - docker build --pull -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" $CONTEXT
   except:
     - main
+    - tags
   tags:
     - k8s-root
 
