@@ -51,6 +51,5 @@ ARG MMD_AGENT_VERSION=main
 RUN apt-get -y install git
 RUN git clone --branch ${MMD_AGENT_VERSION} ${MMD_AGENT_REPO}
 
-COPY product-events-reader.creds ./mmd_agent
 COPY config.yaml ./mmd_agent
 RUN pip install -r mmd_agent/requirements.txt

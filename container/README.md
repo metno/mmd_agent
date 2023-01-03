@@ -7,5 +7,5 @@ docker build -t mmd-agent
 ```
 docker run mmd-agent:latest 
 
-s --production-hub < production hub url > --cmd < path to python script >
+s --queue-name product-events --production-hub < production hub url > --cmd < path/to/python/script > --cred-file < path/to/cred/file >
 ```
