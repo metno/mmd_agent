@@ -94,5 +94,14 @@ staging:
   only:
     refs:
       - tags
-      
 
+production:
+  extends: .release 
+  variables: 
+    ENVIRONMENT: "production"
+    AUTO_RELEASE: "false"
+  only: 
+    refs:
+      - tags
+
+      
