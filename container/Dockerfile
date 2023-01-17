@@ -38,7 +38,6 @@ FROM ubuntu
 COPY --from=build-app /app  /app/
 
 WORKDIR /app
-COPY config.yaml ./go-mms
 RUN apt-get update
 RUN apt-get -y install python3
 RUN apt-get -y install python3-setuptools
