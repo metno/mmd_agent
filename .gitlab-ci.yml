@@ -86,22 +86,4 @@ dev:
     refs:
       - main
 
-staging:
-  extends: .release
-  variables:
-    ENVIRONMENT: "staging"
-    AUTO_RELEASE: "true"
-  only:
-    refs:
-      - tags
-
-production:
-  extends: .release 
-  variables: 
-    ENVIRONMENT: "production"
-    AUTO_RELEASE: "false"
-  only: 
-    refs:
-      - tags
-
       
