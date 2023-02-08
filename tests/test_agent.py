@@ -53,7 +53,7 @@ def test_main_if_mmd_is_succesfully_sent(caplog, monkeypatch):
         mp.setattr(mmd_agent.agent, "read_config", lambda *a: "url")
         mp.setattr(mmd_agent.agent, "send_to_dmci", lambda *a: (200, 'Succesfully saved'))
         main("mms")
-        assert "Succesfully saved\n" in caplog.text
+        assert "Succesfully saved\n" not in caplog.text
 
 
 @pytest.mark.mmd_agent

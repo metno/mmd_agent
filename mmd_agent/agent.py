@@ -25,12 +25,12 @@ import logging
 from config import read_config
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.WARNING)
 
 formatter = logging.Formatter('%(name)s:%(asctime)s:%(levelname)s:%(message)s')
 
 stream_handler = logging.StreamHandler()
-stream_handler.setLevel(logging.DEBUG)
+stream_handler.setLevel(logging.WARNING)
 stream_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 
@@ -48,12 +48,12 @@ def main(incoming_mmd):
         dmci_url = read_config()
         status_code, msg = send_to_dmci(mmd, dmci_url)
         if status_code == 200:
-            logger.debug("Succesfully saved")
+            logger.info("Succesfully saved")
         else:
-            logger.debug("Failed to save")
-            logger.info('{},{}'.format(status_code, msg))
+            logger.error("Failed to save")
+            logger.error('{},{}'.format(status_code, msg))
     else:
-        logger.debug("Given mmd is none or empty")
+        logger.warning("Given mmd is none or empty")
 
 
 if __name__ == "__main__":  # pragma: no cover
