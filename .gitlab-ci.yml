@@ -4,38 +4,31 @@ stages:
 variables:
   mmd_agent_version: main
 
-.source-repo:
-  variables:
-    CONTEXT: repo/container
-  before_script:
-    - git clone --depth 1 --branch $mmd_agent_version https://github.com/metno/mmd_agent repo
-
 build container:
-  extends: .source-repo
   stage: build
   script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - |
       # Build if not yet present in registry
-      docker pull "$CI_REGISTRY_IMAGE:$SHORT_SHA"
-      if [[ $? != 0 ]]; then
-        docker build --pull --build-arg MMD_AGENT_VERSION=$mmd_agent_version -t "$CI_REGISTRY_IMAGE:$SHORT_SHA" $CONTEXT
-        docker push "$CI_REGISTRY_IMAGE:$SHORT_SHA"
+      if ! docker pull "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" > /dev/null 2>&1; then
+        docker build --pull --build-arg MMD_AGENT_VERSION=$mmd_agent_version -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" container
+        docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
       fi
     - |
       # Default branch updates latest container image
       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
-        docker tag "$CI_REGISTRY_IMAGE:$SHORT_SHA" "$CI_REGISTRY_IMAGE:latest"
+        docker tag "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" "$CI_REGISTRY_IMAGE:latest"
         docker push "$CI_REGISTRY_IMAGE:latest"
       fi
     - |
       # Tags also creates container image tags as references to the same build
       if [[ "$CI_COMMIT_TAG" != "" ]]; then
-        docker tag "$CI_REGISTRY_IMAGE:$SHORT_SHA" "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
+        docker tag "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
         docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
       fi
   tags:
     - k8s-root
+
 
 tjenester/s-enda:
   stage: release
