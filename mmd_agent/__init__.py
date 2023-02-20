@@ -18,3 +18,4 @@ limitations under the License.
 """
 
 __package__ = "mmd_agent"
+__version__ = "0.0.3"
