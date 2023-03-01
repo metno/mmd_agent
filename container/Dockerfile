@@ -1,6 +1,6 @@
 
 # FIRST STAGE:  build the app.
-FROM golang:1.16 AS build-app
+FROM golang:1.19 AS build-app
 
 RUN mkdir /app
 
