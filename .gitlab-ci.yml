@@ -32,12 +32,9 @@ build container:
 
 tjenester/s-enda:
   stage: release
-  needs:
-    - job: build container
-      artifacts: true
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: always
+      when: on_success
     - when: never
   variables:
     UPSTREAM_CI_COMMIT_SHA: "${CI_COMMIT_SHA}"
