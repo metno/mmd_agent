@@ -16,7 +16,7 @@ RUN apt-get update && \
 
 # Make us able to change version and repo when building
 ARG MMS_VERSION=main
-#ARG MMS_REPO=https://github.com/metno/go-mms
+ARG MMS_REPO=https://github.com/metno/go-mms
 
 RUN git clone --branch ${MMS_VERSION} ${MMS_REPO}
 WORKDIR /app/go-mms
