@@ -25,7 +25,7 @@ import logging
 from config import read_config
 
 # Read environment variable, INFO if variable is not set
-log_level = os.environ.get("LOGLEVEL", "INFO")
+log_level = os.environ.get("MMD_AGENT_LOGLEVEL", "INFO")
 
 # Create stream handlers and set format
 formatter = logging.Formatter('%(name)s:%(asctime)s:%(levelname)s:%(message)s')
