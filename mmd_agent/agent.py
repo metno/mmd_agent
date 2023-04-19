@@ -33,15 +33,15 @@ stream_handler = logging.StreamHandler()
 stream_handler.setLevel(log_level)
 stream_handler.setFormatter(formatter)
 
-#Setting logging level and handlers
+# Setting logging level and handlers
 logging.basicConfig(
     level=log_level,
     handlers=[stream_handler]
 )
-    
 logger = logging.getLogger(__name__)
 
-# send the mmd file to the dmci
+
+# Send the mmd file to the dmci
 def send_to_dmci(mmd, dmci_url):
 
     url = dmci_url + '/v1/insert'
@@ -50,8 +50,8 @@ def send_to_dmci(mmd, dmci_url):
 
 
 def main(incoming_mmd):
-    
-    #check whether mmd is empty or not
+
+    # Check whether mmd is empty or not
     if incoming_mmd is not None and incoming_mmd != "":
         mmd = incoming_mmd.encode()
         dmci_url = read_config()
