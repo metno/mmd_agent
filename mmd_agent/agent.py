@@ -24,18 +24,26 @@ import requests
 import logging
 from config import read_config
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+# Read environment variable, INFO if variable is not set
+log_level = os.environ.get("MMD_AGENT_LOGLEVEL", "INFO")
 
+# Create stream handlers and set format
 formatter = logging.Formatter('%(name)s:%(asctime)s:%(levelname)s:%(message)s')
-
 stream_handler = logging.StreamHandler()
-stream_handler.setLevel(logging.DEBUG)
+stream_handler.setLevel(log_level)
 stream_handler.setFormatter(formatter)
-logger.addHandler(stream_handler)
+
+# Setting logging level and handlers
+logging.basicConfig(
+    level=log_level,
+    handlers=[stream_handler]
+)
+logger = logging.getLogger(__name__)
 
 
+# Send the mmd file to the dmci
 def send_to_dmci(mmd, dmci_url):
+
     url = dmci_url + '/v1/insert'
     response = requests.post(url, data=mmd)
     return response.status_code, response.text
@@ -43,19 +51,22 @@ def send_to_dmci(mmd, dmci_url):
 
 def main(incoming_mmd):
 
+    # Check whether mmd is empty or not
     if incoming_mmd is not None and incoming_mmd != "":
         mmd = incoming_mmd.encode()
         dmci_url = read_config()
         status_code, msg = send_to_dmci(mmd, dmci_url)
         if status_code == 200:
-            logger.debug("Succesfully saved")
+            logger.info("Succesfully saved")
         else:
-            logger.debug("Failed to save")
-            logger.info('{},{}'.format(status_code, msg))
+            logger.error("Failed to save")
+            logger.error('{},{}'.format(status_code, msg))
     else:
-        logger.debug("Given mmd is none or empty")
+        logger.warning("Given mmd is none or empty")
 
 
 if __name__ == "__main__":  # pragma: no cover
+
+    # Read environment variable
     incoming_mmd = os.environ.get("MMS_PRODUCT_EVENT_MMD", None)
     main(incoming_mmd)

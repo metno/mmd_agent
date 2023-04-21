@@ -22,19 +22,12 @@ import yaml
 import sys
 import logging
 
-
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
-formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(name)s:%(message)s')
-
-stream_handler = logging.StreamHandler()
-stream_handler.setLevel(logging.DEBUG)
-stream_handler.setFormatter(formatter)
-logger.addHandler(stream_handler)
 
 
+# Read the config file and get the required data
 def read_config(configFile=None):
+
     pkg_root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
     if configFile is None:
         configFile = os.path.join(pkg_root, "config.yaml")

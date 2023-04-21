@@ -20,6 +20,7 @@ limitations under the License.
 import pytest
 import requests
 import mmd_agent
+import logging
 from mmd_agent.agent import send_to_dmci, main
 
 
@@ -52,7 +53,8 @@ def test_main_if_mmd_is_succesfully_sent(caplog, monkeypatch):
     with monkeypatch.context() as mp:
         mp.setattr(mmd_agent.agent, "read_config", lambda *a: "url")
         mp.setattr(mmd_agent.agent, "send_to_dmci", lambda *a: (200, 'Succesfully saved'))
-        main("mms")
+        with caplog.at_level(logging.INFO):
+            main("mms")
         assert "Succesfully saved\n" in caplog.text
 
 
