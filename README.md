@@ -11,6 +11,22 @@ python -m pytest -vv --cov=mmd_agent --cov-report=term --cov-report=xml
 [![pytest](https://github.com/metno/mmd_agent/actions/workflows/pytest.yml/badge.svg?branch=main)](https://github.com/metno/mmd_agent/actions/workflows/pytest.yml)
 [![codecov](https://codecov.io/gh/metno/mmd_agent/branch/main/graph/badge.svg?token=xSG9Sg0jQ0)](https://codecov.io/gh/metno/mmd_agent)
 
+## Installation
+```
+git clone https://github.com/metno/mmd_agent
+
+cd mmd_agent
+
+mkdir unsent_files
+
+```
+Create the file `config.yaml` based on `example-config.yaml` and fill it with the following:
+
+```
+dmci_url:
+unsent_file_path: unsent_files
+
+``````
 ## Dependencies
 
 For the main packages:
