@@ -112,6 +112,7 @@ def test_main_if_mmd_is_valid_and_failed_to_save(caplog, monkeypatch):
 def test_main_if_failed_to_sent_and_saved_to_unsent_files_directory(caplog, monkeypatch):
 
     with monkeypatch.context() as mp:
+        mp.setattr(mmd_agent.agent, "read_config", lambda *a: ("url", "unsent_file_path"))
         mp.setattr(mmd_agent.agent, "persist_unsent_files",
                    lambda *a: (200, "Saved in unsent_files directory"))
         with pytest.raises(requests.exceptions.RequestException):
@@ -127,6 +128,7 @@ def test_main_if_failed_to_sent_and_saved_to_unsent_files_directory(caplog, monk
 def test_main_if_failed_to_sent_and_failed_to_save_to_unsent_files_directory(caplog, monkeypatch):
 
     with monkeypatch.context() as mp:
+        mp.setattr(mmd_agent.agent, "read_config", lambda *a: ("url", "unsent_file_path"))
         mp.setattr(mmd_agent.agent, "persist_unsent_files",
                    lambda *a: (507, "Cannot write xml data to cache file"))
         # Raise an exception for send_to_dmci
