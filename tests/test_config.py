@@ -47,7 +47,7 @@ def test_read_config(filesDir, rootDir, monkeypatch):
         read_config(configFile=exampleConf)
     assert pytest_wrapped_e.type == SystemExit
 
-    # value for unsent_file_path doesn't exist
+    # value for unsent_mmd_path doesn't exist
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         read_config(configFile=exampleConfWithDmci)
     assert pytest_wrapped_e.type == SystemExit

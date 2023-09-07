@@ -17,14 +17,14 @@ git clone https://github.com/metno/mmd_agent
 
 cd mmd_agent
 
-mkdir unsent_files
+mkdir unsent_mmd
 
 ```
 Create the file `config.yaml` based on `example-config.yaml` and fill it with the following:
 
 ```
 dmci_url:
-unsent_file_path: unsent_files
+unsent_mmd_path: unsent_mmd
 
 ``````
 ## Dependencies
