@@ -23,7 +23,6 @@ import os
 import requests
 import logging
 from config import read_config
-from retry import retry
 import uuid
 
 
@@ -64,8 +63,6 @@ def persist_unsent_mmd(data, unsent_mmd_path):
 
 
 # Send the mmd file to the dmci
-# Retry decorator reruns the method 'send_to_dmci' if an exception occurs.
-@retry(requests.exceptions.RequestException, delay=4, tries=1, backoff=2)
 def send_to_dmci(mmd, dmci_url):
 
     url = dmci_url + '/v1/insert'

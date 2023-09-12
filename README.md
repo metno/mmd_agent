@@ -63,7 +63,9 @@ Coverage requires the `pytest-cov` package.
 
 ## Usage
 
-To start the script:
+It consist of two scripts.
+ - For posting MMD files to dmci api
+ - For reposting the MMD files that were not sent while the dmci was down.
 
 ```python
 MMS_PRODUCT_EVENT_MMD=$(cat <path to mmd file>) python agent.py
@@ -71,7 +73,10 @@ MMS_PRODUCT_EVENT_MMD=$(cat <path to mmd file>) python agent.py
 
 Then the mmd file is sent to the dmci api.
 
-
+```python
+python handler.py
+```
+This tries to repost the unsent MMD files that were persisted in 'unsent_mmd' while dmci was down.
 
 ## Licence
 

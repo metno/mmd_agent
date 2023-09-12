@@ -23,7 +23,6 @@ import os
 import requests
 import logging
 from config import read_config
-from retry import retry
 import time
 
 
@@ -45,8 +44,6 @@ logger = logging.getLogger(__name__)
 
 
 # Send the mmd file to the dmci
-# Retry decorator reruns the method 'send_to_dmci' if an exception occurs.
-@retry(requests.exceptions.RequestException, delay=4, tries=2, backoff=2)
 def send_to_dmci(mmd, dmci_url):
 
     url = dmci_url + '/v1/insert'
@@ -92,7 +89,7 @@ if __name__ == "__main__":  # pragma: no cover
                     mmd_path = os.path.join(unsent_mmd_path, filename)
                     if os.path.isfile(mmd_path):
                         main(mmd_path, dmci_url)
-            time.sleep(10)  # Sleep for 10 seconds before checking again
+            time.sleep(1800)  # Sleep for 30 minutes before checking again
             logger.info("Sleeping for 10 sec")
     except Exception as e:
         logger.error(f"Failed to sent {e}")
