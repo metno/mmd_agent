@@ -11,6 +11,22 @@ python -m pytest -vv --cov=mmd_agent --cov-report=term --cov-report=xml
 [![pytest](https://github.com/metno/mmd_agent/actions/workflows/pytest.yml/badge.svg?branch=main)](https://github.com/metno/mmd_agent/actions/workflows/pytest.yml)
 [![codecov](https://codecov.io/gh/metno/mmd_agent/branch/main/graph/badge.svg?token=xSG9Sg0jQ0)](https://codecov.io/gh/metno/mmd_agent)
 
+## Installation
+```
+git clone https://github.com/metno/mmd_agent
+
+cd mmd_agent
+
+mkdir unsent_mmd
+
+```
+Create the file `config.yaml` based on `example-config.yaml` and fill it with the following:
+
+```
+dmci_url:
+unsent_mmd_path: unsent_mmd
+
+``````
 ## Dependencies
 
 For the main packages:
@@ -47,7 +63,9 @@ Coverage requires the `pytest-cov` package.
 
 ## Usage
 
-To start the script:
+It consist of two scripts.
+ - For posting MMD files to dmci api
+ - For reposting the MMD files that were not sent while the dmci was down.
 
 ```python
 MMS_PRODUCT_EVENT_MMD=$(cat <path to mmd file>) python agent.py
@@ -55,7 +73,10 @@ MMS_PRODUCT_EVENT_MMD=$(cat <path to mmd file>) python agent.py
 
 Then the mmd file is sent to the dmci api.
 
-
+```python
+python handler.py
+```
+This tries to repost the unsent MMD files that were persisted in 'unsent_mmd' while dmci was down.
 
 ## Licence
 
