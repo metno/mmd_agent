@@ -29,8 +29,7 @@ def test_read_config(filesDir, rootDir, monkeypatch):
     # Read some values and see that we get them
     confFile = os.path.join(filesDir, "config.yaml")
     invalidConfFile = os.path.join(filesDir, "invalid_config.yaml")
-    exampleConfWithoutDmci = os.path.join(rootDir, "example_config_dmci.yaml")
-    exampleConfWithoutUnsentmmd = os.path.join(rootDir, "example_config_unsent_mmd.yaml")
+    exampleConf = os.path.join(rootDir, "example_config.yaml")
 
     # Read with test-config being discovered by os.path.join
     with monkeypatch.context() as mp:
@@ -43,13 +42,9 @@ def test_read_config(filesDir, rootDir, monkeypatch):
     assert pytest_wrapped_e.type == SystemExit
 
     # value for dmci_url doesn't exist
-    with pytest.raises(SystemExit) as pytest_wrapped_e:
-        read_config(configFile=exampleConfWithoutDmci)
-    assert pytest_wrapped_e.type == SystemExit
 
-    # value for unsent_mmd_path doesn't exist
     with pytest.raises(SystemExit) as pytest_wrapped_e:
-        read_config(configFile=exampleConfWithoutUnsentmmd)
+        read_config(configFile=exampleConf)
     assert pytest_wrapped_e.type == SystemExit
 
     # Cause the open command to fail

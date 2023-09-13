@@ -39,16 +39,11 @@ def read_config(configFile=None):
             with open(configFile, mode="r", encoding="utf8") as inFile:
                 raw_conf = yaml.safe_load(inFile)
                 dmci_url = raw_conf.get("dmci_url")
-                unsent_mmd_path = raw_conf.get("unsent_mmd_path")
             if dmci_url is None or dmci_url == "":
                 logger.error("Parameter dmci_url in config is not set")
                 sys.exit(1)
-            elif unsent_mmd_path is None or unsent_mmd_path == "":
-                logger.error("Parameter unsent_mmd_path in config is not set")
-                sys.exit(1)
             else:
-                unsent_mmd_path = os.path.join(pkg_root, unsent_mmd_path)
-                return dmci_url, unsent_mmd_path
+                return dmci_url
         except Exception:
             logger.exception("Could not read file: %s", configFile)
             sys.exit(1)
