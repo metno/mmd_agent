@@ -32,7 +32,7 @@ def test_persist_unsent_mmd_succesfully(tmpdir, caplog):
     unsent_mmd_path = tmpdir
     status_code, msg = persist_unsent_mmd(data, unsent_mmd_path)
     assert status_code == 200
-    assert msg == "Saved in unsent_mmd directory"
+    assert msg == "Saved in unsent_mmd directory."
     assert len(caplog.records) == 0
 
 
@@ -47,7 +47,7 @@ def test_persist_unsent_mmd_failed(monkeypatch, caplog, tmpdir):
         status_code, msg = persist_unsent_mmd(data, directory_path)
 
     assert status_code == 507
-    assert msg == "Cannot write xml data to cache file"
+    assert msg == "Cannot write xml data to cache file."
 
     assert len(caplog.records) == 1
     assert "Test Exception" in caplog.text
@@ -78,14 +78,14 @@ def test_send_to_dmci_raise_an_exception(monkeypatch):
 
 @pytest.mark.mmd_agent
 def test_main_if_incoming_mmd_is_empty(caplog):
-    main("")
-    assert "Given mmd is none or empty\n" in caplog.text
+    main("", "")
+    assert "Given mmd is none or empty.\n" in caplog.text
 
 
 @pytest.mark.mmd_agent
 def test_main_if_incoming_mmd_is_none(caplog):
-    main(None)
-    assert "Given mmd is none or empty\n" in caplog.text
+    main(None, "")
+    assert "Given mmd is none or empty.\n" in caplog.text
 
 
 @pytest.mark.mmd_agent
@@ -94,8 +94,8 @@ def test_main_if_mmd_is_succesfully_sent(caplog, monkeypatch):
         mp.setattr(mmd_agent.agent, "read_config", lambda *a: ("url", "unsent_mmd_path"))
         mp.setattr(mmd_agent.agent, "send_to_dmci", lambda *a: (200, 'Succesfully saved'))
         with caplog.at_level(logging.INFO):
-            main("mms")
-        assert "Succesfully saved\n" in caplog.text
+            main("mms", "filename")
+        assert "MMD file filename was successfully ingested with DMCI.\n" in caplog.text
 
 
 @pytest.mark.mmd_agent
@@ -103,9 +103,8 @@ def test_main_if_mmd_is_valid_and_failed_to_save(caplog, monkeypatch):
     with monkeypatch.context() as mp:
         mp.setattr(mmd_agent.agent, "read_config", lambda *a: ("url", "unsent_mmd_path"))
         mp.setattr(mmd_agent.agent, "send_to_dmci", lambda *a: (400, 'Failed to save'))
-        main("mms")
-        assert "Failed to save\n" in caplog.text
-        assert "400,Failed to save\n" in caplog.text
+        main("mms", "filename")
+        assert "Failed to push MMD file filename to DMCI. Status code : 400 \n" in caplog.text
 
 
 @pytest.mark.mmd_agent
@@ -118,9 +117,9 @@ def test_main_if_failed_to_sent_and_saved_to_unsent_mmd_directory(caplog, monkey
         with pytest.raises(requests.exceptions.RequestException):
             send_to_dmci("mmd", "url")
         with caplog.at_level(logging.INFO):
-            main("mms")
+            main("mms", "filename")
             assert "Failed to send." in caplog.text
-            assert "Moving file to unsent_mmd directory\n" in caplog.text
+            assert "Moving file to unsent_mmd directory.\n" in caplog.text
             assert "200,Saved in unsent_mmd directory\n" in caplog.text
 
 
@@ -135,7 +134,7 @@ def test_main_if_failed_to_sent_and_failed_to_save_to_unsent_mmd_directory(caplo
         with pytest.raises(requests.exceptions.RequestException):
             send_to_dmci("mmd", "url")
         with caplog.at_level(logging.INFO):
-            main("mms")
+            main("mms", "filename")
             assert "Failed to send." in caplog.text
-            assert "Moving file to unsent_mmd directory\n" in caplog.text
+            assert "Moving file to unsent_mmd directory.\n" in caplog.text
             assert "507,Cannot write xml data to cache file\n" in caplog.text

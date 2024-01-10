@@ -97,16 +97,13 @@ def main(incoming_mmd, product_location):
                              filename_xml, status_code)
                 error_lines = []
                 if status_code == 500:
-
-                    # Improving logs
-                    # Extracting the first line
+                    # Extracting the line beginning with required string:
                     first_line_match = re.search(r'^.*$', msg, re.MULTILINE)
                     first_line = first_line_match.group(0) if first_line_match else None
 
-                    # Extracting the line beginning with - file:
                     file_line_match = re.search(r'^- file::.*$', msg, re.MULTILINE)
                     file_line = file_line_match.group(0) if file_line_match else None
-                    # Extracting the line beginning with DETAIL
+
                     detail_line_match = re.search(r'^DETAIL:.*$', msg, re.MULTILINE)
                     detail_line = detail_line_match.group(0) if detail_line_match else None
 
