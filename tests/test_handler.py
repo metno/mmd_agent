@@ -52,7 +52,7 @@ def test_send_to_dmci_raise_an_exception(monkeypatch):
 def test_main_if_mmd_is_succesfully_sent_and_saved_archive(
         caplog, monkeypatch, tmpdir):
 
-    xml_content = """<mmd:mmd xmlns:mmd="http://www.met.no/schema/mmd" 
+    xml_content = """<mmd:mmd xmlns:mmd="http://www.met.no/schema/mmd"
         xmlns:gml="http://www.opengis.net/gml">
         <mmd:metadata_identifier>avb</mmd:metadata_identifier>
         <mmd:storage_information>
@@ -78,7 +78,7 @@ def test_main_if_mmd_is_succesfully_sent_and_saved_archive(
 def test_main_if_mmd_is_succesfully_sent_and_saved_rejected(
         caplog, monkeypatch, tmpdir):
 
-    xml_content = """<mmd:mmd xmlns:mmd="http://www.met.no/schema/mmd" 
+    xml_content = """<mmd:mmd xmlns:mmd="http://www.met.no/schema/mmd"
         xmlns:gml="http://www.opengis.net/gml">
         <mmd:metadata_identifier>avb</mmd:metadata_identifier>
         <mmd:storage_information>
@@ -103,7 +103,7 @@ def test_main_if_mmd_is_succesfully_sent_and_saved_rejected(
 @pytest.mark.mmd_agent
 def test_main_if_failed_to_sent(caplog, monkeypatch, tmpdir):
 
-    xml_content = """<mmd:mmd xmlns:mmd="http://www.met.no/schema/mmd" 
+    xml_content = """<mmd:mmd xmlns:mmd="http://www.met.no/schema/mmd"
         xmlns:gml="http://www.opengis.net/gml">
         <mmd:metadata_identifier>avb</mmd:metadata_identifier>
         <mmd:storage_information>
