@@ -24,6 +24,7 @@ import requests
 import logging
 from config import read_config
 import uuid
+import re
 
 
 # Read environment variable, INFO if variable is not set
@@ -55,11 +56,11 @@ def persist_unsent_mmd(data, unsent_mmd_path):
     try:
         with open(full_path, "w") as queuefile:
             queuefile.write(data)
-        return 200, "Saved in unsent_mmd directory"
+        return 200, "Saved in unsent_mmd directory."
 
     except Exception as e:
         logger.error(str(e))
-        return 507, "Cannot write xml data to cache file"
+        return 507, "Cannot write xml data to cache file."
 
 
 # Send the mmd file to the dmci
@@ -74,10 +75,15 @@ def send_to_dmci(mmd, dmci_url):
     return response.status_code, response.text
 
 
-def main(incoming_mmd):
+def main(incoming_mmd, product_location):
 
     # Check whether mmd is empty or not
     if incoming_mmd is not None and incoming_mmd != "":
+
+        filename_xml = ""
+        if product_location is not None and product_location != "":
+            filename = os.path.basename(product_location)
+            filename_xml = filename.replace(".nc", ".xml")
 
         mmd = incoming_mmd.encode()
         dmci_url, unsent_mmd_path = read_config()
@@ -85,15 +91,49 @@ def main(incoming_mmd):
 
             status_code, msg = send_to_dmci(mmd, dmci_url)
             if status_code == 200:
-                logger.info("Succesfully saved")
+                logger.info("MMD file %s was successfully ingested with DMCI.", filename_xml)
             else:
-                logger.error("Failed to save")
-                logger.error('{},{}'.format(status_code, msg))
+                logger.error("Failed to push MMD file %s to DMCI. Status code : %s ",
+                             filename_xml, status_code)
+                error_lines = []
+                if status_code == 500:
+
+                    # Improving logs
+                    # Extracting the first line
+                    first_line_match = re.search(r'^.*$', msg, re.MULTILINE)
+                    first_line = first_line_match.group(0) if first_line_match else None
+
+                    # Extracting the line beginning with - file:
+                    file_line_match = re.search(r'^- file::.*$', msg, re.MULTILINE)
+                    file_line = file_line_match.group(0) if file_line_match else None
+                    # Extracting the line beginning with DETAIL
+                    detail_line_match = re.search(r'^DETAIL:.*$', msg, re.MULTILINE)
+                    detail_line = detail_line_match.group(0) if detail_line_match else None
+
+                    solr_line_match = re.search(r'^ - solr:.*$', msg, re.MULTILINE)
+                    solr_line = solr_line_match.group(0) if solr_line_match else None
+
+                    if first_line:
+                        error_lines.append(f'{first_line}')
+
+                    if file_line:
+                        error_lines.append(f'{file_line}')
+
+                    if detail_line:
+                        error_lines.append(f'{detail_line}')
+
+                    if solr_line:
+                        error_lines.append(f'{solr_line}')
+
+                if len(error_lines) > 0:
+                    logger.error('\n'.join(error_lines))
+                else:
+                    logger.error(f'{msg}')
 
         except Exception as e:
 
             logger.error(f"Failed to send.{e}")
-            logger.info("Moving file to unsent_mmd directory")
+            logger.info("Moving file to unsent_mmd directory.")
             status_code, msg = persist_unsent_mmd(incoming_mmd, unsent_mmd_path)
             if status_code == 200:
                 logger.info('{},{}'.format(status_code, msg))
@@ -101,11 +141,13 @@ def main(incoming_mmd):
                 logger.error('{},{}'.format(status_code, msg))
     else:
 
-        logger.warning("Given mmd is none or empty")
+        logger.warning("Given mmd is none or empty.")
 
 
 if __name__ == "__main__":  # pragma: no cover
 
     # Read environment variable
     incoming_mmd = os.environ.get("MMS_PRODUCT_EVENT_MMD", None)
-    main(incoming_mmd)
+    product_location = os.environ.get("MMS_PRODUCT_EVENT_PRODUCT_LOCATION", None)
+
+    main(incoming_mmd, product_location)
