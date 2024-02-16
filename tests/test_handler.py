@@ -51,8 +51,17 @@ def test_send_to_dmci_raise_an_exception(monkeypatch):
 @pytest.mark.mmd_agent
 def test_main_if_mmd_is_succesfully_sent_and_saved_archive(
         caplog, monkeypatch, tmpdir):
-    testFile = tmpdir.join("testfile.txt")
-    testFile.write("content")
+
+    xml_content = """<mmd:mmd xmlns:mmd="http://www.met.no/schema/mmd"
+        xmlns:gml="http://www.opengis.net/gml">
+        <mmd:metadata_identifier>avb</mmd:metadata_identifier>
+        <mmd:storage_information>
+        <mmd:file_name>reference_nc.nc</mmd:file_name>
+        </mmd:storage_information>
+    </mmd:mmd>
+    """
+    testFile = tmpdir.join("testfile.xml")
+    testFile.write(xml_content)
 
     with monkeypatch.context() as mp:
         mp.setattr(mmd_agent.handler, "read_config", lambda *a:
@@ -61,16 +70,24 @@ def test_main_if_mmd_is_succesfully_sent_and_saved_archive(
                    (200, 'Succesfully saved'))
         with caplog.at_level(logging.INFO):
             main(testFile, "dmci-url")
-            assert "Succesfully saved" in caplog.text
+            assert "MMD file reference_nc.xml was successfully ingested with DMCI." in caplog.text
             assert "Removed the file from unsent_mmd directory" in caplog.text
 
 
 @pytest.mark.mmd_agent
 def test_main_if_mmd_is_succesfully_sent_and_saved_rejected(
         caplog, monkeypatch, tmpdir):
-    testFile = tmpdir.join("testfile.txt")
-    testFile.write("content")
 
+    xml_content = """<mmd:mmd xmlns:mmd="http://www.met.no/schema/mmd"
+        xmlns:gml="http://www.opengis.net/gml">
+        <mmd:metadata_identifier>avb</mmd:metadata_identifier>
+        <mmd:storage_information>
+        <mmd:file_name>reference_nc.nc</mmd:file_name>
+        </mmd:storage_information>
+    </mmd:mmd>
+    """
+    testFile = tmpdir.join("testfile.xml")
+    testFile.write(xml_content)
     with monkeypatch.context() as mp:
         mp.setattr(mmd_agent.handler, "read_config", lambda *a:
                    ("url", "unsent_file_path"))
@@ -78,15 +95,24 @@ def test_main_if_mmd_is_succesfully_sent_and_saved_rejected(
                    (400, 'Rejected'))
         with caplog.at_level(logging.INFO):
             main(testFile, "dmci-url")
-            assert "Failed to save" in caplog.text
-            assert "400,Rejected" in caplog.text
+            assert "Failed to push MMD file reference_nc.xml to DMCI." in caplog.text
+            assert "Rejected" in caplog.text
             assert "Removed the file from unsent_mmd directory" in caplog.text
 
 
 @pytest.mark.mmd_agent
 def test_main_if_failed_to_sent(caplog, monkeypatch, tmpdir):
-    testFile = tmpdir.join("testfile.txt")
-    testFile.write("content")
+
+    xml_content = """<mmd:mmd xmlns:mmd="http://www.met.no/schema/mmd"
+        xmlns:gml="http://www.opengis.net/gml">
+        <mmd:metadata_identifier>avb</mmd:metadata_identifier>
+        <mmd:storage_information>
+        <mmd:file_name>reference_nc.nc</mmd:file_name>
+        </mmd:storage_information>
+    </mmd:mmd>
+    """
+    testFile = tmpdir.join("testfile.xml")
+    testFile.write(xml_content)
 
     with pytest.raises(requests.exceptions.RequestException):
         send_to_dmci("mmd", "url")
