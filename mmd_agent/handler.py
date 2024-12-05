@@ -24,6 +24,8 @@ import requests
 import logging
 from config import read_config
 import time
+import xml.etree.ElementTree as ET
+import re
 
 
 # Read environment variable, INFO if variable is not set
@@ -66,20 +68,63 @@ def main(mmd_path, dmci_url):
         with open(mmd_path, "r") as xml_file:
             incoming_mmd = xml_file.read()
 
+        # Parse the XML content
+        root = ET.fromstring(incoming_mmd)
+        filename_xml = ''
+        # Find the file_name element
+        file_name_element = root.find(".//mmd:file_name",
+                                      namespaces={'mmd': 'http://www.met.no/schema/mmd'})
+
+        if file_name_element is not None:
+            filename = file_name_element.text
+            filename_xml = filename.replace(".nc", ".xml")
+
         mmd = incoming_mmd.encode()
         status_code, msg = send_to_dmci(mmd, dmci_url)
 
         if status_code == 200:
-            logger.info("Succesfully saved")
+            logger.info("MMD file %s was successfully ingested with DMCI.", filename_xml)
         else:
-            logger.error("Failed to save")
-            logger.error('{},{}'.format(status_code, msg))
+            logger.error("Failed to push MMD file %s to DMCI. Status code : %s ",
+                         filename_xml, status_code)
+
+            # Extracting the line beginning with required string:
+            first_line_match = re.search(r'^.*$', msg, re.MULTILINE)
+            first_line = first_line_match.group(0) if first_line_match else None
+
+            file_line_match = re.search(r'^- file::.*$', msg, re.MULTILINE)
+            file_line = file_line_match.group(0) if file_line_match else None
+
+            detail_line_match = re.search(r'^DETAIL:.*$', msg, re.MULTILINE)
+            detail_line = detail_line_match.group(0) if detail_line_match else None
+
+            solr_line_match = re.search(r'^ - solr:.*$', msg, re.MULTILINE)
+            solr_line = solr_line_match.group(0) if solr_line_match else None
+
+            error_lines = []
+
+            if first_line:
+                error_lines.append(f'{first_line}')
+
+            if file_line:
+                error_lines.append(f'{file_line}')
+
+            if detail_line:
+                error_lines.append(f'{detail_line}')
+
+            if solr_line:
+                error_lines.append(f'{solr_line}')
+
+            if not any([first_line, file_line, detail_line, solr_line]):
+                logger.error(f'{msg}')
+            else:
+                logger.error('\n'.join(error_lines))
 
         os.remove(mmd_path)
-        logger.info("Removed the file from unsent_mmd directory")
+        logger.info("Removed the file from unsent_mmd directory.")
 
     except Exception as e:
-        logger.error(f"Failed to sent {e}")
+        logger.error(f"Failed to sent. {e}")
 
 
 if __name__ == "__main__":  # pragma: no cover
@@ -93,7 +138,7 @@ if __name__ == "__main__":  # pragma: no cover
                     mmd_path = os.path.join(unsent_mmd_path, filename)
                     if os.path.isfile(mmd_path):
                         main(mmd_path, dmci_url)
+            logger.info("Sleeping for 30 minutes.")
             time.sleep(1800)  # Sleep for 30 minutes before checking again
-            logger.info("Sleeping for 10 sec")
     except Exception as e:
-        logger.error(f"Failed to sent {e}")
+        logger.error(f"Failed to sent. {e}")
