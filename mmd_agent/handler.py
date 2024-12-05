@@ -53,7 +53,7 @@ def send_to_dmci(mmd, dmci_url):
     headers = {
         "apikey": api_key
     }
-    response = requests.post(url,headers=headers ,data=mmd)
+    response = requests.post(url, headers=headers, data=mmd)
 
     if response.status_code == 503:
         raise requests.exceptions.RequestException(
