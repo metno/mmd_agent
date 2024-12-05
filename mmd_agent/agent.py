@@ -71,7 +71,7 @@ def send_to_dmci(mmd, dmci_url):
     headers = {
         "apikey": api_key
     }
-    response = requests.post(url,headers=headers ,data=mmd)
+    response = requests.post(url, headers=headers, data=mmd)
     # Check if the API call was successful
     if response.status_code == 503:
         raise requests.exceptions.RequestException(f"API returned {response.status_code}\
