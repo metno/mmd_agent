@@ -28,6 +28,7 @@ import time
 
 # Read environment variable, INFO if variable is not set
 log_level = os.environ.get("UNSENT-MMD-HANDLER_LOGLEVEL", "INFO")
+api_key = os.environ.get('API_KEY')
 
 # Create stream handlers and set format
 formatter = logging.Formatter('%(name)s:%(asctime)s:%(levelname)s:%(message)s')
@@ -47,7 +48,10 @@ logger = logging.getLogger(__name__)
 def send_to_dmci(mmd, dmci_url):
 
     url = dmci_url + '/v1/insert'
-    response = requests.post(url, data=mmd)
+    headers = {
+        "apikey": api_key
+    }
+    response = requests.post(url,headers=headers ,data=mmd)
 
     if response.status_code == 503:
         raise requests.exceptions.RequestException(
