@@ -33,15 +33,13 @@ RUN make
 RUN make test
 
 # SECOND STAGE: create the app runtime image.
-FROM ubuntu
+FROM python:3.10-slim-bookworm
 
 COPY --from=build-app /app  /app/
 
 WORKDIR /app
 RUN apt-get update
-RUN apt-get -y install python3
-RUN apt-get -y install python3-setuptools
-RUN apt-get -y install python3-pip
+
 WORKDIR /app/go-mms
 
 ARG MMD_AGENT_REPO=https://github.com/metno/mmd_agent
@@ -50,4 +48,4 @@ ARG MMD_AGENT_VERSION=main
 RUN apt-get -y install git
 RUN git clone --branch ${MMD_AGENT_VERSION} ${MMD_AGENT_REPO}
 
-RUN pip install -r mmd_agent/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r mmd_agent/requirements.txt
